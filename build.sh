@@ -9,7 +9,7 @@ clean_build() {
     cd "$SCRIPT_DIR"
 
     # 删除编译生成的板卡文件
-    for target in re-ss-01 re-cs-02 re-cs-07 ax5-jdcloud; do
+    for target in re-ss-01 re-cs-02 re-cs-07 nn6000-v1 nn6000-v2 ax5-jdcloud; do
         if [ -f "uboot-ipq60xx-emmc-${target}-*.bin" ]; then
             rm "uboot-ipq60xx-emmc-${target}-*.bin"
         fi
@@ -122,6 +122,8 @@ show_help() {
     echo "  build_re-ss-01          编译 JDCloud AX1800 Pro (Arthur)"
     echo "  build_re-cs-02          编译 JDCloud AX6600 (Athena)"
     echo "  build_re-cs-07          编译 JDCloud ER1"
+	echo "  build_nn6000-v1         编译 Link NN6000 V1"
+	echo "  build_nn6000-v2         编译 Link NN6000 V2"
     echo "  build_ax5-jdcloud       编译 Redmi AX5 JDCloud"
     echo "  build_all               编译所有支持的板卡"
     echo "  help                    显示此帮助信息"
@@ -156,6 +158,14 @@ case "$1" in
         compile_target_with_clean "re-cs-07" "ipq6018_jdcloud_re_cs_07"
         ;;
 
+    "build_nn6000-v1")
+        compile_target_with_clean "nn6000-v1" "ipq6018_link_nn6000_v1"
+        ;;
+
+    "build_nn6000-v2")
+        compile_target_with_clean "nn6000-v2" "ipq6018_link_nn6000_v2"
+        ;;
+
     "build_ax5-jdcloud")
         compile_target_with_clean "ax5-jdcloud" "ipq6018_redmi_ax5_jdcloud"
         ;;
@@ -167,6 +177,8 @@ case "$1" in
         compile_target_with_clean "re-ss-01" "ipq6018_jdcloud_re_ss_01"
         compile_target_with_clean "re-cs-02" "ipq6018_jdcloud_re_cs_02"
         compile_target_with_clean "re-cs-07" "ipq6018_jdcloud_re_cs_07"
+		compile_target_with_clean "nn6000-v1" "ipq6018_link_nn6000_v1"
+		compile_target_with_clean "nn6000-v2" "ipq6018_link_nn6000_v2"
         compile_target_with_clean "ax5-jdcloud" "ipq6018_redmi_ax5_jdcloud"
 
         echo "所有板卡编译完成!"
@@ -185,7 +197,7 @@ esac
 
 # 只有编译操作才显示完成消息
 case "$1" in
-    "build_re-ss-01"|"build_re-cs-02"|"build_re-cs-07"|"build_ax5-jdcloud"|"build_all")
+    "build_re-ss-01"|"build_re-cs-02"|"build_re-cs-07"|"build_nn6000-v1"|"build_nn6000-v2"|"build_ax5-jdcloud"|"build_all")
         echo "全部完成!"
         ;;
 esac
