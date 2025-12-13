@@ -4,12 +4,12 @@ u-boot-2016 源代码基于：https://github.com/gl-inet/uboot-ipq60xx
 
 ## 适配设备
 
-本项目已适配以下 IPQ60xx eMMC 机型：
+本项目已适配以下 IPQ60xx **eMMC** 机型：
 
 - 京东云太乙（RE-CS-07）
 - 京东云亚瑟（RE-SS-01）
 - 京东云雅典娜（RE-CS-02）
-- 连我 NN6000 V1（未测试）
+- 连我 NN6000 V1
 - 连我 NN6000 V2
 - 红米 AX5 JDCloud（RA50）
 
@@ -112,6 +112,12 @@ U-Boot 下不区分 LAN / WAN，任意网口均可进入 Web 刷机界面。
 按住 RESET / WPS / SCREEN 键后上电，等待 LED 闪烁 5 次后即可进入 U-Boot Web 刷机界面。
 
 ## 注意事项
+
+### 连我 NN6000 V1 的 U-Boot 未测试
+
+连我 NN6000 V1 的 U-Boot 未测试过，因为没有机器。
+
+V1 和 V2 的 U-Boot 只是网口配置不同，其他都一样。若发现 V1 U-Boot 不能正常使用，可刷写 V2 的 U-Boot 测试，看看每个网口是否能正常进 Web。每换一个网口都要断电并重新按 RESET / WPS 键启动 HTTP Server，不要在 HTTP Server 已经启动的时候换网口，这样是进不了 Web 的。
 
 ### bootipq 失败后执行 httpd 出错
 
