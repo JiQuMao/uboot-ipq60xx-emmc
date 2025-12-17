@@ -534,7 +534,7 @@ void httpd_appcall(void){
 					} else {
 						printf("Data will be downloaded at 0x%X in RAM\n", WEBFAILSAFE_UPLOAD_RAM_ADDRESS);
 					}
-					memset((void *)webfailsafe_data_pointer, 0xFF, WEBFAILSAFE_UPLOAD_UBOOT_SIZE_IN_BYTES);
+					memset((void *)webfailsafe_data_pointer, 0xFF, WEBFAILSAFE_UPLOAD_PADDING_SIZE_IN_BYTES);
 
 					if(httpd_findandstore_firstchunk()){
 						data_start_found = 1;
@@ -633,7 +633,56 @@ void httpd_appcall(void){
 					httpd_download_progress();
 
 					// if we have collected all data
-					if(hs->upload >= hs->upload_total+strlen(boundary_value)+6){
+					if(hs->upload >= hs->upload_total + strlen(boundary_value) + 6) {
+						// 用 0xFF 填充内存中上传的文件后面的部分内存区域，防止干扰文件检查
+						memset((void *)webfailsafe_data_pointer, 0xFF, WEBFAILSAFE_UPLOAD_PADDING_SIZE_IN_BYTES);
+						// 检查上传的文件是否正确
+						int fw_type = check_fw_type((void *)WEBFAILSAFE_UPLOAD_RAM_ADDRESS);
+						switch (webfailsafe_upgrade_type) {
+							case WEBFAILSAFE_UPGRADE_TYPE_FIRMWARE:
+								if (fw_type != FW_TYPE_FACTORY_KERNEL6M &&
+									fw_type != FW_TYPE_FACTORY_KERNEL12M &&
+									fw_type != FW_TYPE_QSDK
+								) {
+									printf("\n\n* The upload file is NOT supported FIRMWARE!! *\n\n");
+									print_fw_type(fw_type);
+									webfailsafe_upload_failed = 1;
+								}
+								break;
+							case WEBFAILSAFE_UPGRADE_TYPE_UBOOT:
+								if (fw_type != FW_TYPE_ELF) {
+									printf("\n\n* The upload file is NOT supported UBOOT ELF!! *\n\n");
+									print_fw_type(fw_type);
+									webfailsafe_upload_failed = 1;
+								}
+								break;
+							case WEBFAILSAFE_UPGRADE_TYPE_IMG:
+								if (fw_type != FW_TYPE_EMMC) {
+									printf("\n\n* The upload file is NOT supported EMMC IMG!! *\n\n");
+									print_fw_type(fw_type);
+									webfailsafe_upload_failed = 1;
+								}
+								break;
+							case WEBFAILSAFE_UPGRADE_TYPE_CDT:
+								if (fw_type != FW_TYPE_CDT) {
+									printf("\n\n* The upload file is NOT supported CDT!! *\n\n");
+									print_fw_type(fw_type);
+									webfailsafe_upload_failed = 1;
+								}
+								break;
+							case WEBFAILSAFE_UPGRADE_TYPE_UIMAGE:
+								if (fw_type != FW_TYPE_FIT) {
+									printf("\n\n* The upload file is NOT supported FIT uImage!! *\n\n");
+									print_fw_type(fw_type);
+									webfailsafe_upload_failed = 1;
+								}
+								break;
+							case WEBFAILSAFE_UPGRADE_TYPE_ART:
+								break;
+							default:
+								printf("\n\n* NOT supported WEBFAILSAFE UPGRADE TYPE!! *");
+								webfailsafe_upload_failed = 1;
+						}
 
 						printf("\n\ndone!\n");
 						led_on("blink_led");
@@ -641,11 +690,10 @@ void httpd_appcall(void){
 						// end of post upload
 						webfailsafe_post_done = 1;
 
-
 						net_boot_file_size = (ulong)hs->upload_total;
 
 						// which website will be returned
-						if(!webfailsafe_upload_failed){
+						if (!webfailsafe_upload_failed) {
 							fs_open(file_flashing_html.name, &fsfile);
 						} else {
 							fs_open(file_fail_html.name, &fsfile);
@@ -659,7 +707,6 @@ void httpd_appcall(void){
 
 						uip_send(hs->dataptr, (hs->upload > uip_mss() ? uip_mss() : hs->upload));
 					}
-
 				}
 
 				return;

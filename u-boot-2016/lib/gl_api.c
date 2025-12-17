@@ -269,35 +269,72 @@ int check_config()
 	return 0;
 }
 
-int check_fw_type(void *address){
-	u32 *sign_flas=(u32 *)(address+0x5c);
-	u16 *sign_55aa=(u16 *)(address+0x1fe);
-	u32 *sign_doodfeed=(u32 *)address;
-	u32 *sign_ubi=(u32 *)address;
-	u32 *sign_cdt=(u32 *)address;
-	u32 *sign_elf=(u32 *)address;
-	u32 *sign_kernel6m=(u32 *)(address+0x600000);
-	u32 *sign_kernel12m=(u32 *)(address+0xc00000);
+// 只检查文件的开头几个特殊 Magic Num
+int check_fw_type(void *address) {
+	u32 *sign_flas      = (u32 *)(address + 0x5c);
+	u16 *sign_55aa      = (u16 *)(address + 0x1fe);
+	u32 *sign_doodfeed  = (u32 *)(address);
+	u32 *sign_ubi       = (u32 *)(address);
+	u32 *sign_cdt       = (u32 *)(address);
+	u32 *sign_elf       = (u32 *)(address);
+	u32 *sign_kernel6m  = (u32 *)(address + 0x600000);
+	u32 *sign_kernel12m = (u32 *)(address + 0xc00000);
 
-	if (*sign_flas==0x73616c46)
+	if (*sign_flas == 0x73616c46)
 		return FW_TYPE_QSDK;
-	else if (*sign_ubi==0x23494255)
+	else if (*sign_ubi == 0x23494255)
 		return FW_TYPE_UBI;
-	else if (*sign_doodfeed==0xedfe0dd0 && *sign_kernel6m==0x73717368)
+	else if (*sign_doodfeed == 0xedfe0dd0 && *sign_kernel6m == 0x73717368)
 		return FW_TYPE_FACTORY_KERNEL6M;
-	else if (*sign_doodfeed==0xedfe0dd0 && *sign_kernel12m==0x73717368)
+	else if (*sign_doodfeed == 0xedfe0dd0 && *sign_kernel12m == 0x73717368)
 		return FW_TYPE_FACTORY_KERNEL12M;
-	else if (*sign_doodfeed==0xedfe0dd0)
+	else if (*sign_doodfeed == 0xedfe0dd0)
 		return FW_TYPE_FIT;
-	else if (*sign_55aa==0xaa55)
+	else if (*sign_55aa == 0xaa55)
 		return FW_TYPE_EMMC;
-	else if (*sign_cdt==0x00544443)
+	else if (*sign_cdt == 0x00544443)
 		return FW_TYPE_CDT;
-	else if (*sign_elf==0x464c457f)
+	else if (*sign_elf == 0x464c457f)
 		return FW_TYPE_ELF;
 	else
-		return -1;
-	return 0;
+		return FW_TYPE_UNKNOWN;
+}
+
+void print_fw_type(int fw_type) {
+	printf("* The upload file type: ");
+	switch (fw_type) {
+		case FW_TYPE_NOR:
+			printf("SPI-NOR IMGAGE *");
+			break;
+		case FW_TYPE_EMMC:
+			printf("EMMC IMAGE *");
+			break;
+		case FW_TYPE_QSDK:
+			printf("QSDK FIRMWARE *");
+			break;
+		case FW_TYPE_UBI:
+			printf("UBI FIRMWARE *");
+			break;
+		case FW_TYPE_CDT:
+			printf("CDT *");
+			break;
+		case FW_TYPE_ELF:
+			printf("ELF *");
+			break;
+		case FW_TYPE_FACTORY_KERNEL6M:
+			printf("FACTORY FIRMWARE (KERNEL SIZE: 6MB) *");
+			break;
+		case FW_TYPE_FACTORY_KERNEL12M:
+			printf("FACTORY FIRMWARE (KERNEL SIZE: 12MB) *");
+			break;
+		case FW_TYPE_FIT:
+			printf("FIT IMAGE *");
+			break;
+		case FW_TYPE_UNKNOWN:
+		default:
+			printf("UNKNOWN *");
+	}
+	return;
 }
 /*
 
