@@ -233,50 +233,37 @@ static int httpd_findandstore_firstchunk(void){
 
 				// We need to check if file which we are going to download
 				// has correct size (for every type of upgrade)
-
-				// U-Boot
-				if((webfailsafe_upgrade_type == WEBFAILSAFE_UPGRADE_TYPE_UBOOT) && (hs->upload_total > WEBFAILSAFE_UPLOAD_UBOOT_SIZE_IN_BYTES)){
-					printf("## Error: wrong file size, should be less than or equal to: %d bytes!\n", WEBFAILSAFE_UPLOAD_UBOOT_SIZE_IN_BYTES);
-					webfailsafe_upload_failed = 1;
-					file_too_big = 1;
-
-				// ART
-				}
-				else if(webfailsafe_upgrade_type == WEBFAILSAFE_UPGRADE_TYPE_ART){
-					if(strcmp(getenv("machid"), "8030202") == 0){
-						//For JDCloud AX6600 Athena ART 512 KiB
+				switch (webfailsafe_upgrade_type) {
+					case WEBFAILSAFE_UPGRADE_TYPE_UBOOT:
+						if (hs->upload_total > WEBFAILSAFE_UPLOAD_UBOOT_SIZE_IN_BYTES) {
+							printf("## Error: wrong file size, uboot should be less than or equal to: %d bytes!\n", WEBFAILSAFE_UPLOAD_UBOOT_SIZE_IN_BYTES);
+							webfailsafe_upload_failed = 1;
+							file_too_big = 1;
+						}
+						break;
+					case WEBFAILSAFE_UPGRADE_TYPE_ART:
+#if defined(CONFIG_TARGET_IPQ6018_JDCLOUD_RE_CS_02) || \
+	defined(CONFIG_TARGET_IPQ6018_JDCLOUD_RE_CS_07)
+						// For JDCloud AX6600 (Athena) and JDCloud ER1, ART is 512 KiB
 						art_size = WEBFAILSAFE_UPLOAD_ART_BIG_SIZE_IN_BYTES;
-
-					} else if(strcmp(getenv("machid"), "8030203") == 0){
-						//For JDCloud ER1 ART 512 KiB
-						art_size = WEBFAILSAFE_UPLOAD_ART_BIG_SIZE_IN_BYTES;
-
-					} else {
+#else
 						art_size = WEBFAILSAFE_UPLOAD_ART_SIZE_IN_BYTES;
-					}
-
-					if (hs->upload_total > art_size){
-						printf("## Error: wrong file size, should be less than or equal to: %d bytes!\n", art_size);
-						webfailsafe_upload_failed = 1;
-						file_too_big = 1;
-					}
-
-				// firmware can't exceed: (FLASH_SIZE -  WEBFAILSAFE_UPLOAD_LIMITED_AREA_IN_BYTES)
-				// } else if(hs->upload_total > (info->size - WEBFAILSAFE_UPLOAD_LIMITED_AREA_IN_BYTES)){
-
-				// 	printf("## Error: file too big!\n");
-				// 	webfailsafe_upload_failed = 1;
-
-				// CDT
-				}
-				else if((webfailsafe_upgrade_type == WEBFAILSAFE_UPGRADE_TYPE_CDT)
-						&& (hs->upload_total > WEBFAILSAFE_UPLOAD_CDT_SIZE_IN_BYTES)
-						){
-
-					printf("## Error: wrong file size, should be less than or equal to: %d bytes!\n", WEBFAILSAFE_UPLOAD_CDT_SIZE_IN_BYTES);
-					webfailsafe_upload_failed = 1;
-					file_too_big = 1;
-
+#endif
+						if (hs->upload_total > art_size) {
+							printf("## Error: wrong file size, art should be less than or equal to: %d bytes!\n", art_size);
+							webfailsafe_upload_failed = 1;
+							file_too_big = 1;
+						}
+						break;
+					case WEBFAILSAFE_UPGRADE_TYPE_CDT:
+						if (hs->upload_total > WEBFAILSAFE_UPLOAD_CDT_SIZE_IN_BYTES) {
+							printf("## Error: wrong file size, cdt should be less than or equal to: %d bytes!\n", WEBFAILSAFE_UPLOAD_CDT_SIZE_IN_BYTES);
+							webfailsafe_upload_failed = 1;
+							file_too_big = 1;
+						}
+						break;
+					default:
+						break;
 				}
 
 				printf("Loading: ");
@@ -534,7 +521,7 @@ void httpd_appcall(void){
 					} else {
 						printf("Data will be downloaded at 0x%X in RAM\n", WEBFAILSAFE_UPLOAD_RAM_ADDRESS);
 					}
-					memset((void *)webfailsafe_data_pointer, 0xFF, WEBFAILSAFE_UPLOAD_PADDING_SIZE_IN_BYTES);
+					memset((void *)webfailsafe_data_pointer, 0, WEBFAILSAFE_UPLOAD_PADDING_SIZE_IN_BYTES);
 
 					if(httpd_findandstore_firstchunk()){
 						data_start_found = 1;
@@ -634,54 +621,13 @@ void httpd_appcall(void){
 
 					// if we have collected all data
 					if(hs->upload >= hs->upload_total + strlen(boundary_value) + 6) {
-						// 用 0xFF 填充内存中上传的文件后面的部分内存区域，防止干扰文件检查
-						memset((void *)webfailsafe_data_pointer, 0xFF, WEBFAILSAFE_UPLOAD_PADDING_SIZE_IN_BYTES);
+						// 用 0 填充内存中上传的文件后面的部分内存区域，防止干扰文件检查
+						ulong padding_start = (ulong)WEBFAILSAFE_UPLOAD_RAM_ADDRESS + (ulong)hs->upload_total;
+						memset((void *)padding_start, 0, WEBFAILSAFE_UPLOAD_PADDING_SIZE_IN_BYTES);
 						// 检查上传的文件是否正确
 						int fw_type = check_fw_type((void *)WEBFAILSAFE_UPLOAD_RAM_ADDRESS);
-						switch (webfailsafe_upgrade_type) {
-							case WEBFAILSAFE_UPGRADE_TYPE_FIRMWARE:
-								if (fw_type != FW_TYPE_FACTORY_KERNEL6M &&
-									fw_type != FW_TYPE_FACTORY_KERNEL12M &&
-									fw_type != FW_TYPE_QSDK
-								) {
-									printf("\n\n* The upload file is NOT supported FIRMWARE!! *\n\n");
-									print_fw_type(fw_type);
-									webfailsafe_upload_failed = 1;
-								}
-								break;
-							case WEBFAILSAFE_UPGRADE_TYPE_UBOOT:
-								if (fw_type != FW_TYPE_ELF) {
-									printf("\n\n* The upload file is NOT supported UBOOT ELF!! *\n\n");
-									print_fw_type(fw_type);
-									webfailsafe_upload_failed = 1;
-								}
-								break;
-							case WEBFAILSAFE_UPGRADE_TYPE_IMG:
-								if (fw_type != FW_TYPE_EMMC) {
-									printf("\n\n* The upload file is NOT supported EMMC IMG!! *\n\n");
-									print_fw_type(fw_type);
-									webfailsafe_upload_failed = 1;
-								}
-								break;
-							case WEBFAILSAFE_UPGRADE_TYPE_CDT:
-								if (fw_type != FW_TYPE_CDT) {
-									printf("\n\n* The upload file is NOT supported CDT!! *\n\n");
-									print_fw_type(fw_type);
-									webfailsafe_upload_failed = 1;
-								}
-								break;
-							case WEBFAILSAFE_UPGRADE_TYPE_UIMAGE:
-								if (fw_type != FW_TYPE_FIT) {
-									printf("\n\n* The upload file is NOT supported FIT uImage!! *\n\n");
-									print_fw_type(fw_type);
-									webfailsafe_upload_failed = 1;
-								}
-								break;
-							case WEBFAILSAFE_UPGRADE_TYPE_ART:
-								break;
-							default:
-								printf("\n\n* NOT supported WEBFAILSAFE UPGRADE TYPE!! *");
-								webfailsafe_upload_failed = 1;
+						if (check_fw_compat(webfailsafe_upgrade_type, fw_type, (ulong)hs->upload_total)) {
+							webfailsafe_upload_failed = 1;
 						}
 
 						printf("\n\ndone!\n");

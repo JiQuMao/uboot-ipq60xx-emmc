@@ -1,17 +1,10 @@
-//#define GPIO_RED_LED 37
-//#define GPIO_GREEN_LED 50
-//#define GPIO_BLUE_LED 35
-//#define GPIO_RESET_BTN 9
-//#define GPIO_JOYLINK_BTN 8
-
 #define GL_RESET_BUTTON_IS_PRESS        0
 #define GL_WPS_BUTTON_IS_PRESS          0
 #define GL_SCREEN_BUTTON_IS_PRESS       0
 
 #if defined(CONFIG_TARGET_IPQ6018_JDCLOUD_RE_CS_02) || \
     defined(CONFIG_TARGET_IPQ6018_JDCLOUD_RE_SS_01) || \
-    defined(CONFIG_TARGET_IPQ6018_LINK_NN6000_V1) || \
-    defined(CONFIG_TARGET_IPQ6018_LINK_NN6000_V2)
+    defined(CONFIG_TARGET_IPQ6018_LINK_NN6000)
 #define HAS_WPS_KEY 1
 #endif
 
@@ -22,33 +15,23 @@
 #define LED_ON 1
 #define LED_OFF 0
 
-void check_button_is_press(void);
-
 #define WEBFAILSAFE_PROGRESS_START		0
 #define WEBFAILSAFE_PROGRESS_TIMEOUT		1
 #define WEBFAILSAFE_PROGRESS_UPLOAD_READY	2
 #define WEBFAILSAFE_PROGRESS_UPGRADE_READY	3
 #define WEBFAILSAFE_PROGRESS_UPGRADE_FAILED	4
 
-#define WEBFAILSAFE_UPGRADE_TYPE_FIRMWARE	0
-#define WEBFAILSAFE_UPGRADE_TYPE_UBOOT		1
-#define WEBFAILSAFE_UPGRADE_TYPE_ART		2
-#define WEBFAILSAFE_UPGRADE_TYPE_IMG		3
-#define WEBFAILSAFE_UPGRADE_TYPE_CDT		4
-#define WEBFAILSAFE_UPGRADE_TYPE_UIMAGE     5
+enum {
+    WEBFAILSAFE_UPGRADE_TYPE_FIRMWARE,
+    WEBFAILSAFE_UPGRADE_TYPE_UBOOT,
+    WEBFAILSAFE_UPGRADE_TYPE_ART,
+    WEBFAILSAFE_UPGRADE_TYPE_IMG,
+    WEBFAILSAFE_UPGRADE_TYPE_CDT,
+    WEBFAILSAFE_UPGRADE_TYPE_UIMAGE,
+};
 
 #define CONFIG_LOADADDR                                 0x44000000
 #define WEBFAILSAFE_UPLOAD_RAM_ADDRESS                  0x50000000
-
-#define WEBFAILSAFE_UPLOAD_UBOOT_ADDRESS                0x520000
-#define WEBFAILSAFE_UPLOAD_ART_ADDRESS                  0x660000
-#define WEBFAILSAFE_UPLOAD_FW_ADDRESS                   0x6a0000 //单nor情况,不会发生
-
-#define WEBFAILSAFE_UPLOAD_UBOOT_ADDRESS_NAND           0x800000
-#define WEBFAILSAFE_UPLOAD_ART_ADDRESS_NAND             0x980000
-#define WEBFAILSAFE_UPLOAD_FW_ADDRESS_NAND              0xa00000
-
-#define CONFIG_ART_START                  0x660000
 
 #define WEBFAILSAFE_UPLOAD_PADDING_SIZE_IN_BYTES        (1024*1024)
 #define WEBFAILSAFE_UPLOAD_UBOOT_SIZE_IN_BYTES          (640*1024)
@@ -56,25 +39,34 @@ void check_button_is_press(void);
 #define WEBFAILSAFE_UPLOAD_ART_BIG_SIZE_IN_BYTES        (512*1024)
 #define WEBFAILSAFE_UPLOAD_CDT_SIZE_IN_BYTES            (256*1024)
 
-#define WEBFAILSAFE_UPLOAD_UBOOT_SIZE_IN_BYTES_NAND     (1536*1024)
-#define WEBFAILSAFE_UPLOAD_ART_SIZE_IN_BYTES_NAND       (512*1024)
+#define HEADER_MAGIC_CDT         0x00544443
+#define HEADER_MAGIC_ELF         0x464C457F
+#define HEADER_MAGIC_EMMC        0xAA55
+#define HEADER_MAGIC_FIT         0xEDFE0DD0
+#define HEADER_MAGIC_JDCLOUD     0x73616C46
+#define HEADER_MAGIC_SQUASHFS    0x73717368
+#define HEADER_MAGIC_SYSUPGRADE1 0x75737973
+#define HEADER_MAGIC_SYSUPGRADE2 0x61726770
+#define HEADER_MAGIC_UBI         0x23494255
 
-#define FW_TYPE_UNKNOWN -1
-#define FW_TYPE_NOR 0
-#define FW_TYPE_EMMC 1
-#define FW_TYPE_QSDK 2
-#define FW_TYPE_UBI 3
-#define FW_TYPE_CDT 4
-#define FW_TYPE_ELF 5
-#define FW_TYPE_FACTORY_KERNEL6M 6
-#define FW_TYPE_FACTORY_KERNEL12M 7
-#define FW_TYPE_FIT 8
+enum {
+    FW_TYPE_UNKNOWN = -1,
+    FW_TYPE_CDT,
+    FW_TYPE_ELF,
+    FW_TYPE_EMMC,
+    FW_TYPE_FACTORY_KERNEL6M,
+    FW_TYPE_FACTORY_KERNEL12M,
+    FW_TYPE_FIT,
+    FW_TYPE_JDCLOUD,
+    FW_TYPE_SYSUPGRADE,
+    FW_TYPE_UBI,
+};
 
-int check_test(void);
-int check_config(void);
 int auto_update_by_tftp(void);
 int check_fw_type(void *address);
+int check_fw_compat(const int upgrade_type, const int fw_type, const ulong file_size_in_bytes);
 void print_fw_type(int fw_type);
 void led_toggle(const char *gpio_name);
 void led_on(const char *gpio_name);
 void led_off(const char *gpio_name);
+void check_button_is_press(void);

@@ -4,30 +4,29 @@
 
 ### ✨ 功能更新
 
-- 雅典娜支持通过 Screen 键启动 HTTP Server
-
-### 🐛 BUG 修复
-
-- 修复无法启动超过 30MB 的 uImage 的问题
+- 添加 bootconfig 命令，用于切换启动分区
+- 添加 untar 命令，用于解析 sysupgrade tar image
+- 支持刷写 sysupgrade 格式的固件
+- 固件上传完成后检查其 kernel 与 rootfs 是否超过相应分区大小
+- 支持通过 DHCP 为客户端分配 IP（dhcpd 跟随 httpd 自动启动）
 
 ### 📢 其他更新
 
-- 修改 bootcmd 为 bootipq（[点击此处](https://github.com/chenxin527/uboot-ipq60xx-emmc-build/commit/b1682e34c931779f1f46ff4d210777e9b1256f1a) 查看详细说明）
-- 修改 smeminfo 命令的输出内容
-- 检查上传的文件是否正确，不正确则返回 fail.html，并在串口控制台打印相关信息
-- 调整文件上传前填充的内存区域大小，文件上传完成后填充文件之后一定大小的内存区域
+- 调整文件上传完成后内存填充的起始地址，改用 0 填充内存
+- 调整上传文件大小错误时打印的日志内容
+- 合并 NN6000 V1 & V2 的 U-Boot
+- 为打印的日志中的十六进制数添加 0x 前缀
 
 ## 📡 支持设备
 
 - 京东云太乙（RE-CS-07）
 - 京东云亚瑟（RE-SS-01）
 - 京东云雅典娜（RE-CS-02）
-- 连我 NN6000 V1
-- 连我 NN6000 V2
+- 连我 NN6000（V1 & V2）
 - 红米 AX5 JDCloud（RA50）
 
 ## 📸 网页截图
 
-[点击此处](https://github.com/chenxin527/uboot-ipq60xx-emmc-build/blob/5bda947116b50186274a11367528f257d4f52c56/screenshots.md) 查看所有网页截图。
+[点击此处](https://github.com/chenxin527/uboot-ipq60xx-emmc-build/blob/bbcbeac8bf2d4df9714913b171d33a60a1e0be31/screenshots.md) 查看所有网页截图。
 
 ![uboot-index-page](https://github.com/chenxin527/uboot-ipq60xx-emmc-build/blob/42af5d1c143ea42dd02023db5bef45f56677674f/screenshots/uboot-index-page.png)

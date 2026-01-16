@@ -67,6 +67,7 @@ obj-$(CONFIG_CMD_SOURCE) += cmd_source.o
 obj-$(CONFIG_CMD_BDI) += cmd_bdinfo.o
 obj-$(CONFIG_CMD_BEDBUG) += bedbug.o cmd_bedbug.o
 obj-$(CONFIG_CMD_BMP) += cmd_bmp.o
+obj-$(CONFIG_CMD_BOOTCONFIG) += cmd_bootconfig.o
 obj-$(CONFIG_CMD_BOOTMENU) += cmd_bootmenu.o
 obj-$(CONFIG_CMD_BOOTLDR) += cmd_bootldr.o
 obj-$(CONFIG_CMD_BOOTSTAGE) += cmd_bootstage.o
@@ -80,6 +81,7 @@ obj-$(CONFIG_DATAFLASH_MMC_SELECT) += cmd_dataflash_mmc_mux.o
 obj-$(CONFIG_CMD_DATE) += cmd_date.o
 obj-$(CONFIG_CMD_DEMO) += cmd_demo.o
 obj-$(CONFIG_CMD_SOUND) += cmd_sound.o
+obj-$(CONFIG_CMD_UNTAR) += cmd_untar.o
 ifdef CONFIG_4xx
 obj-$(CONFIG_CMD_SETGETDCR) += cmd_dcr.o
 endif

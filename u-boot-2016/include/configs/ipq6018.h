@@ -356,6 +356,7 @@ extern loff_t board_env_size;
  * Other commands
  */
 
+#define CONFIG_CMD_BOOTCONFIG
 #define CONFIG_CMD_FLASHWRITE
 #define CONFIG_CMD_RUN
 #define CONFIG_ARMV7_PSCI
@@ -364,12 +365,12 @@ extern loff_t board_env_size;
 #define CONFIG_HTTPD
 #define CONFIG_CMD_GPIO
 #define CONFIG_CMD_IMI
+#define CONFIG_CMD_UNTAR
+#define CONFIG_MTK_DHCPD
 /*
 #define CONFIG_AUTOBOOT_KEYED
 #define CONFIG_AUTOBOOT_PROMPT "Hit \"%s\" key to stop booting in %d seconds\n"
 #define CONFIG_AUTOBOOT_STOP_STR "gl"
 */
-
-#define CONFIG_WINDOWS_UPGRADE_SUPPORT
 
 #endif /* _IPQ6018_H */

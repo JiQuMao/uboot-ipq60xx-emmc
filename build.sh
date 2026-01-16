@@ -96,7 +96,7 @@ check_and_pad_file() {
     fi
 
     local current_size_bytes=$(stat -c%s "$file_path")
-    local target_size_bytes=655360  # 640KB = 655360 Bytes
+    local target_size_bytes=655360  # 640 KB = 655360 Bytes
 
     log_message "文件检查: $target_name"
     log_message "文    件: $(basename "$file_path")"
@@ -261,8 +261,7 @@ compile_all_targets() {
     compile_target_after_cache_clean "jdcloud_re-cs-02"  "ipq6018_jdcloud_re_cs_02"
     compile_target_after_cache_clean "jdcloud_re-cs-07"  "ipq6018_jdcloud_re_cs_07"
     compile_target_after_cache_clean "jdcloud_re-ss-01"  "ipq6018_jdcloud_re_ss_01"
-    compile_target_after_cache_clean "link_nn6000-v1"    "ipq6018_link_nn6000_v1"
-    compile_target_after_cache_clean "link_nn6000-v2"    "ipq6018_link_nn6000_v2"
+    compile_target_after_cache_clean "link_nn6000"       "ipq6018_link_nn6000"
     compile_target_after_cache_clean "redmi_ax5-jdcloud" "ipq6018_redmi_ax5_jdcloud"
 
     log_message "所有设备编译完成!"
@@ -275,13 +274,12 @@ show_help() {
     echo "选项:"
     echo "  help                    显示此帮助信息"
     echo "  setup_env               仅设置编译环境"
-	echo "  check_file_size <文件>  检查并调整文件大小至 640KB (655360 Bytes)"
+	echo "  check_file_size <文件>  检查并调整文件大小至 640 KB (655360 Bytes)"
     echo "  clean_cache             清理编译过程中产生的缓存"
     echo "  build_re-cs-02          编译 JDCloud AX6600 (Athena)"
     echo "  build_re-cs-07          编译 JDCloud ER1"
     echo "  build_re-ss-01          编译 JDCloud AX1800 Pro (Arthur)"
-    echo "  build_nn6000-v1         编译 Link NN6000 V1"
-    echo "  build_nn6000-v2         编译 Link NN6000 V2"
+    echo "  build_nn6000            编译 Link NN6000 (V1 & V2)"
     echo "  build_ax5-jdcloud       编译 Redmi AX5 JDCloud"
     echo "  build_all               编译所有支持的设备"
 }
@@ -316,12 +314,8 @@ case "$1" in
         compile_single_target "jdcloud_re-ss-01" "ipq6018_jdcloud_re_ss_01"
         ;;
 
-    "build_nn6000-v1")
-        compile_single_target "link_nn6000-v1" "ipq6018_link_nn6000_v1"
-        ;;
-
-    "build_nn6000-v2")
-        compile_single_target "link_nn6000-v2" "ipq6018_link_nn6000_v2"
+    "build_nn6000")
+        compile_single_target "link_nn6000" "ipq6018_link_nn6000"
         ;;
 
     "build_ax5-jdcloud")
@@ -345,7 +339,7 @@ esac
 
 # 记录编译操作的结束
 case "$1" in
-    "build_re-cs-02"|"build_re-cs-07"|"build_re-ss-01"|"build_nn6000-v1"|"build_nn6000-v2"|"build_ax5-jdcloud"|"build_all")
+    "build_re-cs-02"|"build_re-cs-07"|"build_re-ss-01"|"build_nn6000"|"build_ax5-jdcloud"|"build_all")
         if [ -n "$LOG_FILE" ]; then
             echo "==========================================" >> "$LOG_FILE"
             echo "编译结束时间: $(TZ=UTC-8 date '+%Y-%m-%d %H:%M:%S')" >> "$LOG_FILE"

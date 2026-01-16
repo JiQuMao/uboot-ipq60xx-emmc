@@ -1,6 +1,23 @@
 ## 📋 更新日志
 
-### 📅 [xx.xx.xx](https://github.com/chenxin527/uboot-ipq60xx-emmc-build//tags/)
+### 📅 [26.01.02](https://github.com/chenxin527/uboot-ipq60xx-emmc-build/releases/tag/26.01.02-15.33.09)
+
+#### ✨ 功能更新
+
+- 添加 bootconfig 命令，用于切换启动分区
+- 添加 untar 命令，用于解析 sysupgrade tar image
+- 支持刷写 sysupgrade 格式的固件
+- 固件上传完成后检查其 kernel 与 rootfs 是否超过相应分区大小
+- 支持通过 DHCP 为客户端分配 IP（dhcpd 跟随 httpd 自动启动）
+
+#### 📢 其他更新
+
+- 调整文件上传完成后内存填充的起始地址，改用 0 填充内存
+- 调整上传文件大小错误时打印的日志内容
+- 合并 NN6000 V1 & V2 的 U-Boot
+- 为打印的日志中的十六进制数添加 0x 前缀
+
+### 📅 [25.12.16](https://github.com/chenxin527/uboot-ipq60xx-emmc-build/releases/tag/25.12.16-15.26.27)
 
 #### ✨ 功能更新
 
